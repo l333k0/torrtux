@@ -1,0 +1,42 @@
+===========================
+ Torrtux Torrent Downloader
+===========================
+A terminal-program for downloading torrents from PirateBay
+
+Homepage : http://sourceforge.net/projects/torrtux/
+
+Author :
+   Huguenin Loïs
+
+Many thanks to OpenSubtitles.org (http://www.opensubtitles.org/)
+
+============================
+ Installations instructions
+============================
+
+Ensure dependencies are installed, see DEPENDS
+ 
+Install by running :
+	
+    $ perl install.pl
+
+===========================
+ Contact/Support
+===========================
+
+huguenindl@gmail.com
+
+man torrtux
+
+Wiki : http://sourceforge.net/p/torrtux/wiki/Install%20Torrtux/
+
+Subtitles service powered by www.OpenSubtitles.org
+
+===========================
+ FAQ
+===========================
+
+How do I chose my favourite torrent-manager/subs languages ?
+
+  See your configuration file in $HOME/.torrtuxrc
+ 
