@@ -89,7 +89,7 @@ sub display_details
 sub print_details
 {
     my $torrent = shift;
-    print BLUE BOLD "-" x 30 . "INFOS" . "-" x 40 . "\n\n";
+    print BLUE BOLD "-" x 30 . "INFOS" . "-" x 40 . "\n";
     print BOLD BLUE "\nType:\t\t" . RESET "$torrent->{TYPE}\t\t" . BOLD BLUE "Size:\t\t".RESET "$torrent->{SIZE}\n\n";
     print BOLD BLUE "Uploaded:\t".RESET "$torrent->{DATE}\t".BOLD BLUE "By:\t\t".RESET "$torrent->{AUTHOR}\n\n";
     print BOLD BLUE "Seeders:\t".RESET "$torrent->{SEEDERS}\t\t\t".BOLD BLUE"Leechers:\t".RESET "$torrent->{LEECHERS}\n\n";

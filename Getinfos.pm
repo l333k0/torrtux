@@ -6,87 +6,91 @@ use Exporter;
 use Configfile;
 use Tools;
 use Opensubs;
+use HTML::TreeBuilder;
 use Term::ANSIColor qw(:constants);
 $Term::ANSIColor::AUTORESET = 1;
 our @ISA = qw(Exporter);
-our @EXPORT = qw(&get_author_torrent &get_genre_torrent &get_url_torrent &get_seeds_leechers_torrent &get_urls_details &display_magnetic_link);
+our @EXPORT = qw(&get_and_display_infos &display_magnetic_link);
 
 
-#Function for getting the torrent author
-sub get_author_torrent
-{
-    my $line = shift;
-    my $torrent = shift;
-    ($torrent->{AUTHOR}) = ($line =~ m/ULed by \<.*\>(.+)\<\/[ia]/);
-
-    return 0;
+sub torrents_list{
+  my $torrent = shift;
+  my $compact = shift;
+  my $return;
+  if($compact){
+    $return = GREEN " $torrent->{SEEDERS}". RED " $torrent->{LEECHERS}".WHITE " $torrent->{GENRE}". CLEAR BLUE BOLD" $torrent->{NAME}". DARK GREEN " $torrent->{AUTHOR}";
+  }
+  else{
+    $return = "\t$torrent->{SEEDERS}\t$torrent->{LEECHERS}\t$torrent->{GENRE}\t" . CLEAR BLUE BOLD . "$torrent->{NAME}\n" . "\t"x4 . RESET GREEN "ULed by $torrent->{AUTHOR}\n";
+  }
+  return $return;
 }
 
-#Function for getting the torrent genre
-sub get_genre_torrent
+sub get_and_display_infos
 {
-    my $line = shift;
-    my $torrent = shift;
-    ($torrent->{GENRE}) = ($line =~ m/\"More from this category\"\>(\w+)\</);
+  my $page = shift;
+  my $table_magnets = shift;
+  my $urls_details = shift;
+  my $compact = shift;
 
-    return 0;
-}
+  my $torrent = Torrent->new;
+  my $i = 0;
+  my $root = HTML::TreeBuilder->new;
+  $root->parse($page);
 
-#Function for getting the torrent url
-sub get_url_torrent
-{
-    my $table_urls = shift;
-    my $line = shift;
-    my $i = shift;
-# my ($torrent_url) = ($line =~ m/href=\"(http:\/\/torrents\.thepiratebay\.se[^\"]*)/);
-    my ($torrent_url) = ($line =~ m/href=\"(magnet[^\"]*)/);
+  my @tr = $root->look_down(_tag => 'tr');
 
-    $table_urls->[$i] = $torrent_url; 
-}
+  foreach my $tor (@tr){
+    unless(defined $tor->attr('class') && $tor->attr('class') eq "header"){
+      $i += 1;
+      $torrent->{GENRE} = $tor->look_down(_tag => 'a', title => "More from this category")->as_text();
 
-#Function for getting the details url
-sub get_urls_details
-{
-    my $table_details = shift;
-    my $line = shift;
-    my $i = shift;
+      my $detName = $tor->look_down(_tag => 'div', class => "detName");
+      my $link_array = $detName->extract_links();
+      my $link = @$link_array[0];
+      $urls_details->[$i] = $site.@$link[0];
+      $torrent->{NAME} = $detName->as_text();
 
-    my ($detail_url) = ($line =~ m/href=\"([^\"]*)\"/);
-    $table_details->[$i] = $site.$detail_url;
-}
+      $table_magnets->[$i] = $tor->look_down(_tag => 'a', href => qr/^magnet.*/)->attr('href');
 
+      my $author = $tor->find_by_tag_name('font')->find_by_tag_name('a');
+      if(defined $author){$torrent->{AUTHOR} = $author->as_text();}
+      else {$torrent->{AUTHOR} = 'Anonymous';}
 
-sub get_seeds_leechers_torrent
-{
-    my $line = shift;
-    my $torrent = shift;
-    ($torrent->{SEEDERS}, $torrent->{LEECHERS}) = ($line =~ m/\<td align=\"right\"\>(\d+)\<\/td\>/g);
-
-    return 0;
+      my ($seeders, $leechers) = $tor->look_down(_tag => 'td', align => 'right');
+      $torrent->{SEEDERS} = $seeders->as_text();
+      $torrent->{LEECHERS} = $leechers->as_text();
+      print BOLD YELLOW "\n$i";
+      print torrents_list($torrent, $compact);
+    }
+  }
+  $root->eof();
+  return $i;
 }
 
 sub display_magnetic_link
 {
-    my $urls = shift;
-    my $forsubs = shift;
-    my ($choice,$subname);
-    my $subsearchactivated = read_filerc()->subs;
-    print CLEAR BLUE BOLD "Which torrent ?\n" . BOLD YELLOW "==> ";
-    $choice = <STDIN>;
-    print "$urls->[$choice]\n";
-    system("echo \"$urls->[$choice]\" | xclip -in -selection clipboard");
-    print CLEAR BLUE BOLD "Magnet link copied in the clipboard.\nOpen your torrent manager ? (Y/n)\n" . BOLD YELLOW "==> ";
-    my $choice2 = get_input();
-    if($choice2 ne "n"){
-	launch_torrent_prog($urls->[$choice]);
+  my $urls = shift;
+  my $forsubs = shift;
+  my ($choice,$subname);
+  my $subsearchactivated = read_filerc()->subs;
+  print CLEAR BLUE BOLD "Which torrent ?\n" . BOLD YELLOW "==> ";
+  $choice = <STDIN>;
+  print "$urls->[$choice]\n";
+  system("echo \"$urls->[$choice]\" | xclip -in -selection clipboard");
+  print CLEAR BLUE BOLD "Magnet link copied in the clipboard.\nOpen your torrent manager ? (Y/n)\n" . BOLD YELLOW "==> ";
+  my $choice2 = get_input();
+  if($choice2 ne "n"){
+    launch_torrent_prog($urls->[$choice]);
+  }
+  if($subsearchactivated eq "yes"){
+    ($subname) = ($forsubs->[$choice] =~ m/^.*\/(.*)/g);
+    print CLEAR BLUE BOLD "Search subtitles for $subname on opensubtitles.org ? (y/n)\n". BOLD YELLOW "==> ";
+    my $choicesub = get_input();
+    if($choicesub eq "y"){
+      search_dwnld($subname);
     }
-    if($subsearchactivated eq "yes"){
-	($subname) = ($forsubs->[$choice] =~ m/^.*\/(.*)/g);
-	print CLEAR BLUE BOLD "Search subtitles for $subname on opensubtitles.org ? (y/n)\n". BOLD YELLOW "==> ";
-	my $choicesub = get_input();
-	if($choicesub eq "y"){
-	    search_dwnld($subname);
-	}
-    }
+  }
 
 }
+1;

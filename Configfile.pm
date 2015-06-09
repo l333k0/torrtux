@@ -3,9 +3,8 @@ package Configfile;
 use strict;
 
 use AppConfig qw(:expand :argcount);
-use Exporter;
+use Exporter qw(import);
 
-our @ISA = qw(Exporter);
 our @EXPORT = qw(&read_filerc &launch_torrent_prog);
 
 #Read the config file and return the favourite torrent manager

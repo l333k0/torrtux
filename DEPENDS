@@ -7,5 +7,6 @@
 * HTML::TreeBuilder
 * AppConfig
 * Term::ANSIColor
+* LWP::Protocol::https (optional, useful for some proxies)
 * XML::RPC (optional, for subs)
 * IO::Uncompress::Gunzip (optional, for subs)

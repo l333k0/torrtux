@@ -63,7 +63,7 @@ foreach(@ARGV)
 }
 while($retour){
 
-    $retour = main($sort);
+    $retour = main();
 }
 print CLEAR BLUE BOLD "New research ? (y/N)". BOLD YELLOW "\n==> ";
 my $newr = get_input();
@@ -72,7 +72,7 @@ if($newr eq "y"){
 	die "$prog not find in $ENV{PATH}";
 }
 
-sub testcompactup{
+sub header{
     my $return;
     if($compact){
 	$return = BOLD YELLOW "Num|".BOLD GREEN "SE|".BOLD RED "LE|".WHITE "Genre|".CLEAR BLUE BOLD"Name|".DARK GREEN "Author";
@@ -83,63 +83,28 @@ sub testcompactup{
     return $return;
 }
 
-sub testcompactdet{
-    my $torrent = shift;
-    my $return;
-    if($compact){
-	$return = GREEN " $torrent->{SEEDERS}". RED " $torrent->{LEECHERS}".WHITE " $torrent->{GENRE}". CLEAR BLUE BOLD" $torrent->{NAME}". DARK GREEN " $torrent->{AUTHOR}";
-    }
-    else{
-	$return = "\t$torrent->{SEEDERS}\t$torrent->{LEECHERS}\t$torrent->{GENRE}\t" . CLEAR BLUE BOLD . "$torrent->{NAME}\n" . "\t"x4 . RESET GREEN "ULed by $torrent->{AUTHOR}\n";
-    }
-    return $return;
-}
 
 #Main function 
 sub main{
 
 #Initiation variables
-    my $compact = 1;
-    my ($sort) = @_;
     my ($page, $i, $torrent) = ('',0, Torrent->new());
     my (@pages, @urls_torrents, @urls_details);
-    my $up = testcompactup();
 
 #Call of the function of config file
-    read_filerc();
+    # read_filerc();
 
 #Retrieve the research
     if(!($research)){
         print CLEAR BLUE BOLD "PIRATE SEARCH : ";
-	$research = get_input();}
+	$research = get_input();
+    }
 
 #Get the web page
     $page = page_dwnld($research, 1, '', $sort); 
+    print header();
 
-#Split the pages in pieces
-    @pages = split(/detName/, $page);
-    ($torrent->{GENRE}) = ($pages[1] =~ m/\"More from this category\"\>(\w+)\</);
-    print $up;
-
-#Boucle to find names and links
-    foreach(@pages)
-    {
-
-#If this line contains a torrent name
-	if (($torrent->{NAME}) = ($_ =~ m/title=\"Details for (.*)\"/))
-	{
-	    $i += 1;
-
-	    retrieve_infos($_, $torrent);
-
-	    print BOLD YELLOW "\n$i";
-	    print testcompactdet($torrent);
-	    get_url_torrent(\@urls_torrents, $_, $i);
-	    get_urls_details(\@urls_details, $_, $i);
-	    get_genre_torrent($_, $torrent);
-	}
-    }
-
+    $i = get_and_display_infos($page, \@urls_torrents, \@urls_details, $compact);
     if ($i == 0)
     {
 	print "No torrents found\n";
@@ -157,15 +122,6 @@ sub main{
 
 }
 
-
-#Function for retrieving infos
-sub retrieve_infos
-{
-    my ($line, $torrent) = @_;
-    get_seeds_leechers_torrent($_, $torrent);
-    get_author_torrent($_, $torrent);
-}
-
 #Function for choosing action after research
 sub choices
 {
@@ -175,7 +131,7 @@ sub choices
 
     print BOLD YELLOW "\n==>" . CLEAR BLUE BOLD " Details (m) | display and copy the magnet link (c) | next page (t) | page no. (p) | new search (s) ?\n" . BOLD YELLOW "==> ";
 
-    $choice = <STDIN>;
+    $choice = get_input();
 
     given ($choice) {
 	when(/m/) {
@@ -193,7 +149,6 @@ sub choices
 	when(/p/){
 	    print BOLD YELLOW "\n==> " . CLEAR BLUE BOLD "Which page ?" . BOLD YELLOW "\n==> " . RESET;
 	    $page_n = get_input();
-	    print $page_n;
 	    return 1;
 	}
 	when(/s/){
@@ -201,7 +156,7 @@ sub choices
 		die "$prog not found in $ENV{PATH}";
 	}
 	default{
-	    print "Not a possible choice, quit... ";
+	    print BOLD BLUE "Not a possible choice, quitting..."; 
 	    exit(0);
 	}
     }
