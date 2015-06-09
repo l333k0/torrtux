@@ -5,7 +5,7 @@ use strict;
 use Exporter qw(import);
 use HTML::TreeBuilder;
 use LWP::UserAgent;
-use Switch 'Perl 6';
+use feature "switch";
 
 our @EXPORT = qw(&parse_details);
 
