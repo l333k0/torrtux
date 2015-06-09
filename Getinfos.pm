@@ -50,9 +50,6 @@ sub get_urls_details
     my $table_details = shift;
     my $line = shift;
     my $i = shift;
-# my $site = read_filerc()->site;
-#my $site = "http://thepiratebay.se";
-#my $site = read_filerc()->site;
 
     my ($detail_url) = ($line =~ m/href=\"([^\"]*)\"/);
     $table_details->[$i] = $site.$detail_url;
@@ -65,7 +62,6 @@ sub get_seeds_leechers_torrent
     my $torrent = shift;
     ($torrent->{SEEDERS}, $torrent->{LEECHERS}) = ($line =~ m/\<td align=\"right\"\>(\d+)\<\/td\>/g);
 
-#my @retour = ($seeds, $leechers);
     return 0;
 }
 

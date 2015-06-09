@@ -1,6 +1,5 @@
 === Dependencies for Torrtux ===
-* perl >= 5.0
-* perl-switch
+* perl >= 5.10 (for given/when statements)
 * xclip
 
 *** The following perl modules (all available on CPAN) ***
@@ -8,5 +7,5 @@
 * HTML::TreeBuilder
 * AppConfig
 * Term::ANSIColor
-* XML::RPC (optional)
-* IO::Uncompress::Gunzip (optional)
+* XML::RPC (optional, for subs)
+* IO::Uncompress::Gunzip (optional, for subs)

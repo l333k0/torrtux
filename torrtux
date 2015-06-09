@@ -133,7 +133,6 @@ sub main{
 	    retrieve_infos($_, $torrent);
 
 	    print BOLD YELLOW "\n$i";
-#print "\t$torrent->{SEEDERS}\t$torrent->{LEECHERS}\t$torrent->{GENRE}\t" . CLEAR BLUE BOLD . "$torrent->{NAME}\n" . "\t"x4 . RESET GREEN "ULed by $torrent->{AUTHOR}\n";
 	    print testcompactdet($torrent);
 	    get_url_torrent(\@urls_torrents, $_, $i);
 	    get_urls_details(\@urls_details, $_, $i);

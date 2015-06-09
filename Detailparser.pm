@@ -15,9 +15,6 @@ sub parse_details
   my $root = HTML::TreeBuilder->new;
   $root->parse($page);
 
-#  my ($title) = $root->look_down(_tag => 'div', id => 'title');
-#  print $title->as_text();
-
   #For all children of 'dl' tags we extract the key and value of each element of the list
   my @dl_array = $root->look_down(_tag => 'dl');
 
