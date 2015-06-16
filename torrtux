@@ -18,7 +18,7 @@
 
 
 #Call of the standard modules
-#use lib '/usr/share/torrtux';
+use lib '/usr/share/torrtux';
 use LWP::UserAgent;
 use strict;
 use feature "switch";
