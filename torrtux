@@ -26,6 +26,8 @@ use Term::ANSIColor qw(:constants);
 use Getopt::Long;
 $Term::ANSIColor::AUTORESET = 1;
 Getopt::Long::Configure( "bundling" );
+no warnings 'experimental::smartmatch';
+
 
 
 #Call of the program's modules

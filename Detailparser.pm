@@ -6,6 +6,8 @@ use Exporter qw(import);
 use HTML::TreeBuilder;
 use LWP::UserAgent;
 use feature "switch";
+no warnings 'experimental::smartmatch';
+
 
 our @EXPORT = qw(&parse_details);
 
